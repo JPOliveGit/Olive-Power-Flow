@@ -1,0 +1,14 @@
+{
+  "name": "olive-power-flow",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Responsive Home Assistant power flow card with a visual editor",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/*.test.mjs",
+    "check": "node --check src/olive-power-flow.js && node --check dist/olive-power-flow.js"
+  },
+  "engines": {"node": ">=20"}
+}
