@@ -1,0 +1,22 @@
+type: custom:olive-power-flow
+title: Distribuição de potência
+grid_options:
+  columns: full
+  rows: auto
+production:
+  - entity: sensor.solar_production_power
+    name: Solar
+grid:
+  entity: sensor.grid_power
+  invert: false
+# Opcional: positivo = descarga, negativo = carga.
+# battery:
+#   entity: sensor.battery_power
+#   invert: false
+devices:
+  - entity: sensor.air_conditioner_power
+    name: Ar condicionado
+    icon: mdi:air-conditioner
+  - entity: sensor.office_power
+    name: Escritório
+    icon: mdi:desktop-tower-monitor
