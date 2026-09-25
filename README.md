@@ -1,5 +1,7 @@
 # Olive Power Flow
 
+![Olive Power Flow — illustration with sample readings](docs/preview.svg)
+
 A responsive Home Assistant dashboard card showing **production + grid + optional battery → home → individual consumers**, always in watts. Includes a visual editor; no runtime dependencies or cloud access.
 
 **Version 0.1.0 — initial release candidate.** Local calculation and browser layout tests are provided. End-to-end validation with real Home Assistant sensors is still required before declaring a stable release. This repository is prepared for HACS custom-repository installation; it is not yet listed in the default HACS catalogue.
