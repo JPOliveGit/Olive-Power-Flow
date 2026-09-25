@@ -4,7 +4,7 @@
 
 A responsive Home Assistant dashboard card showing **production + grid + optional battery → home → individual consumers**, always in watts. Includes a visual editor; no runtime dependencies or cloud access.
 
-**Version 0.1.0 — initial release candidate.** Local calculation and browser layout tests are provided. End-to-end validation with real Home Assistant sensors is still required before declaring a stable release. This repository is prepared for HACS custom-repository installation; it is not yet listed in the default HACS catalogue.
+**Version 0.1.1.** Local calculation and browser layout tests are provided. End-to-end validation with real Home Assistant sensors is still required before declaring a stable release. This repository is prepared for HACS custom-repository installation; it is not yet listed in the default HACS catalogue.
 
 ## Install with HACS
 
@@ -16,7 +16,7 @@ Repository: [JPOliveGit/Olive-Power-Flow](https://github.com/JPOliveGit/Olive-Po
 4. Reload the browser. Add **Olive Power Flow** from the dashboard card picker.
 5. If your dashboard manages resources manually, add `/hacsfiles/Olive-Power-Flow/olive-power-flow.js` as a JavaScript module.
 
-For manual installation, copy `dist/olive-power-flow.js` to `/config/www/olive-power-flow.js`, register `/local/olive-power-flow.js?v=0.1.0` as a JavaScript module and reload. Create `www` and restart Home Assistant first if the folder did not exist.
+For manual installation, copy `dist/olive-power-flow.js` to `/config/www/olive-power-flow.js`, register `/local/olive-power-flow.js?v=0.1.1` as a JavaScript module and reload. Create `www` and restart Home Assistant first if the folder did not exist.
 
 ## Visual configuration
 
@@ -72,6 +72,16 @@ grid_options:
 Omit `battery` when absent. `production` and `devices` may be empty arrays. Optional `title`, `home_name`, and source `name` labels are supported. Each device adds one consumer; YAML does not need a separate count.
 
 ## Responsive layout
+
+From v0.1.1 the card defaults to the entire width of its section. Existing cards may retain `grid_options.columns: 12` saved by Home Assistant. Enable **Usar toda a largura da secção** in the visual editor, or update the card YAML:
+
+```yaml
+grid_options:
+  columns: full
+  rows: auto
+```
+
+Update through HACS and fully reload the frontend before using the new editor. Explicit numeric widths remain supported when full-width is disabled. The section itself still needs sufficient width.
 
 Circles stay **96 px** and icons **28 px**. Additional width creates more columns, not larger circles. Six consumers fit in one row at approximately 900 px card width. Narrow screens automatically create additional rows, for both sources and consumers.
 

@@ -1,6 +1,6 @@
 {
   "name": "olive-power-flow",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Responsive Home Assistant power flow card with a visual editor",
   "type": "module",
