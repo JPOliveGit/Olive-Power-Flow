@@ -1,4 +1,4 @@
-/** Olive Power Flow v0.1.0 | MIT License */
+/** Olive Power Flow v0.1.1 | MIT License */
 export function readWatts(state) {
   if (!state || typeof state.state !== 'string' || !state.state.trim()) return null;
   const value = Number(state.state), unit = state.attributes?.unit_of_measurement;
@@ -32,7 +32,7 @@ class OlivePowerFlow extends HTMLElement {
     this.attachShadow({ mode: 'open' });
   }
   static getConfigElement() { return document.createElement('olive-power-flow-editor'); }
-  static getStubConfig() { return { production: [{ entity: '' }], grid: { entity: '' }, devices: [] }; }
+  static getStubConfig() { return { production: [{ entity: '' }], grid: { entity: '' }, devices: [], grid_options: { columns: 'full', rows: 'auto' } }; }
   setConfig(config) {
     this.config = normalizeConfig(config);
     this._signature = null;
@@ -54,7 +54,7 @@ class OlivePowerFlow extends HTMLElement {
     this._observer.observe(this);
   }
   disconnectedCallback() { this._observer?.disconnect(); }
-  getGridOptions() { return { columns: 12, min_columns: 6, rows: 'auto' }; }
+  getGridOptions() { return { columns: 'full', min_columns: 6 }; }
   getCardSize() { return Math.ceil((this._height || 700) / 50); }
   watts(entity) { return readWatts(this._hass?.states[entity]); }
   escape(value) {
@@ -155,6 +155,7 @@ class OlivePowerFlowEditor extends HTMLElement {
     this.shadowRoot.innerHTML=`<style>:host{display:block}form{display:grid;gap:14px;font-family:inherit}label{display:grid;gap:6px;font-size:14px}input,button{font:inherit;color:var(--primary-text-color);background:var(--card-background-color,#fff);border:1px solid var(--divider-color,#888);border-radius:6px;padding:10px;box-sizing:border-box;width:100%}input[type=checkbox]{width:20px;height:20px}fieldset{border:1px solid var(--divider-color,#888);border-radius:8px;display:grid;gap:12px;min-width:0}p{margin:0;color:var(--secondary-text-color);line-height:1.5}.counts{display:grid;grid-template-columns:1fr 1fr;gap:12px}</style>
     <form><p>Casa = produção + rede + bateria. Rede: positivo ao importar; bateria: positivo ao descarregar. Inverte o sinal se o teu sensor usar a convenção oposta.</p>
     ${field('Título','title',c.title || 'Distribuição de potência')}
+    ${field('Usar toda a largura da secção','full_width',(c.grid_options?.columns ?? 'full') === 'full','checkbox')}
     <div class="counts">${field('Sensores de produção','production_count',c.production.length,'number','min="0" max="50" step="1"')}${field('Sensores de consumo','device_count',c.devices.length,'number','min="0" max="100" step="1"')}</div>
     ${c.production.map((n,i)=>sensor(n,`production.${i}`,`Produção ${i+1}`)).join('')}
     ${sensor(c.grid,'grid','Ligação à rede')}
@@ -172,6 +173,8 @@ class OlivePowerFlowEditor extends HTMLElement {
         if (!Number.isInteger(count)||count<0||count>max||input.value==='') { this.render(); return; }
         const list=key==='production_count'?'production':'devices';
         next[list]=Array.from({length:count},(_,i)=>next[list][i] || {entity:''});structural=true;
+      } else if (key==='full_width') {
+        next.grid_options={...next.grid_options,columns:input.checked?'full':12,rows:'auto'};
       } else if (key==='has_battery') {
         if (input.checked) next.battery={entity:''}; else delete next.battery;
         structural=true;
