@@ -21,10 +21,29 @@ try {
     const actual=await page.evaluate(()=>({rows:new Set([...card.shadowRoot.querySelectorAll('.node')].slice(4).map(n=>n.getBoundingClientRect().top)).size,rings:[...card.shadowRoot.querySelectorAll('.ring')].map(n=>n.getBoundingClientRect().width),icons:[...card.shadowRoot.querySelectorAll('ha-icon')].map(n=>n.getBoundingClientRect().width),home:card.shadowRoot.querySelectorAll('.value')[3].textContent}));
     assert.equal(actual.rows,expected);assert.ok(actual.rings.every(n=>n===96));assert.ok(actual.icons.every(n=>n===28));assert.match(actual.home,/1.?200 W/);
   }
+  assert.equal(await page.evaluate(()=>card.getGridOptions().columns),'full');
+  assert.equal(await page.evaluate(()=>customElements.get('olive-power-flow').getStubConfig().grid_options.columns),'full');
+  // Model Sections sizing: 12 cells only cover one third of a widened 36-cell section.
+  await page.evaluate(()=>{
+    window.section=document.createElement('div');
+    section.style.cssText='display:grid;grid-template-columns:repeat(36,minmax(0,1fr));width:1080px';
+    document.body.append(section);section.append(card);card.style.width='';
+    card.style.gridColumn=card.getGridOptions().columns==='full'?'1 / -1':`span ${card.getGridOptions().columns}`;
+  });
+  await page.waitForFunction(()=>card._width===1080);
+  assert.equal(await page.evaluate(()=>new Set([...card.shadowRoot.querySelectorAll('.node')].slice(4).map(n=>n.getBoundingClientRect().top)).size),1);
+  await page.evaluate(()=>section.style.width='600px');
+  await page.waitForFunction(()=>card._width===600);
+  assert.equal(await page.evaluate(()=>new Set([...card.shadowRoot.querySelectorAll('.node')].slice(4).map(n=>n.getBoundingClientRect().top)).size),2);
+  assert.equal(await page.evaluate(()=>card.shadowRoot.querySelector('.ring').getBoundingClientRect().width),96);
+  await page.evaluate(()=>{document.body.append(card);section.remove();});
   await page.evaluate(()=>{window.info=null;card.addEventListener('hass-more-info',e=>window.info=e.detail.entityId);});
   await page.locator('olive-power-flow .node').first().click();
   assert.equal(await page.evaluate(()=>window.info),'sensor.solar');
   await page.evaluate(()=>{window.editor=document.createElement('olive-power-flow-editor');document.body.append(editor);editor.setConfig(cfg);editor.hass=hass;window.changes=[];editor.addEventListener('config-changed',e=>changes.push(e.detail.config));});
+  await page.evaluate(()=>editor.setConfig({...cfg,grid_options:{columns:12,rows:9}}));
+  await page.locator('olive-power-flow-editor input[data-key="full_width"]').check();
+  assert.deepEqual(await page.evaluate(()=>changes.at(-1).grid_options),{columns:'full',rows:'auto'});
   const count=page.locator('olive-power-flow-editor input[data-key="device_count"]');
   await count.fill('7');await count.dispatchEvent('change');
   assert.equal(await page.evaluate(()=>changes.at(-1).devices.length),7);
